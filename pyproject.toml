@@ -91,6 +91,9 @@ dependencies = [
     "posthog~=5.0.0",
     "vobject~=0.9.9",
     "pycountry~=24.6.1",
+
+    # addition deps
+    "nanoid==2.0.0",
 ]
 
 [project.urls]
