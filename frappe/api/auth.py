@@ -19,25 +19,16 @@ def send_otp():
     # check if user exists with this mobile
     user = frappe.db.get_value("User", {"mobile_no": mobile}, ["name"])
     if not user:
-        doc1 = frappe.get_doc({
-            "doctype": "User",
-            "email": f"{mobile}.customer@example.com",
-            "first_name": "Customer",
-            "mobile_no": "{mobile}"
-        })
-
-        doc2 = frappe.get_doc({
-            "doctype": "Has Role",
-            "role": f"Customer",
-            "parent": f"{mobile}.customer@example.com",
-        })
-
-        # Insert into DB
-        doc1.insert()
-        doc2.insert()
-
-        # Commit transaction
+        frappe.db.sql("""
+            INSERT INTO `tabUser` (email, first_name, mobile_no)
+            VALUES (%s, %s, %s)
+        """, (f"{mobile}.customer@example.com", "Customer", f"{mobile}"))
+        frappe.db.sql("""
+            INSERT INTO `tabHas Role` (role, parent)
+            VALUES (%s, %s)
+        """, (f"Customer", f"{mobile}.customer@example.com"))
         frappe.db.commit()
+
     
     # generate OTP for 5 minutes
     otp = generate_otp()
