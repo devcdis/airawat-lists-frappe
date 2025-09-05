@@ -19,14 +19,19 @@ def send_otp():
     # check if user exists with this mobile
     user = frappe.db.get_value("User", {"mobile_no": mobile}, ["name"])
     if not user:
-        frappe.db.sql("""
-            INSERT INTO `tabUser` (email, first_name, mobile_no)
-            VALUES (%s, %s, %s)
-        """, (f"{mobile}.customer@example.com", "Customer", f"{mobile}"))
-        frappe.db.sql("""
-            INSERT INTO `tabHas Role` (role, parent)
-            VALUES (%s, %s)
-        """, (f"Customer", f"{mobile}.customer@example.com"))
+        user = frappe.get_doc({
+            "doctype": "User",
+            "email": f"{mobile}.customer@example.com",
+            "first_name": "Customer",
+            "mobile_no": mobile,
+            "enabled": 1,
+            "roles": [
+                {"role": "Customer"}
+            ]
+        })
+
+        # Insert into database
+        user.insert(ignore_permissions=True)
         frappe.db.commit()
 
     
